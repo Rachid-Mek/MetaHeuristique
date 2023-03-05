@@ -14,17 +14,20 @@ public class Partition {
         }
         return array;
     }
+
     public static List<Integer>[] partitionement(int[] S) {
         // on tri notre tableau dans l'ordre croissant avant de faire le partitionnement
         Arrays.sort(S);
-        reverse(S);
+
         List<Integer> S1 = new ArrayList<>();
         List<Integer> S2 = new ArrayList<>();
         int sumS1 = 0, sumS2 = 0;
 
-        //en parcoure le tableau et en fait le partitionement selon la somme des deux sous tableaux
+        // en parcoure le tableau et en fait le partitionement selon la somme des deux
+        // sous tableaux
 
-        for (int j : S) {   // pour j = 0 a n
+        for (int i = S.length; i > 0; --i) {
+            int j = S[i];
             if (sumS1 <= sumS2) {
                 S1.add(j);
                 sumS1 += j;
@@ -38,14 +41,8 @@ public class Partition {
         partition[1] = S2;
         return partition;
     }
-    private static void reverse(int[] arr) {
-        for (int i = 0, j=arr.length-1; i<j ; i++, j--) {
-            int temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
-        }
-    }
-    //methode pour afficher la difference entre les deux sous ensembles
+
+    // methode pour afficher la difference entre les deux sous ensembles
     public static int difference(List<Integer> S1, List<Integer> S2) {
         int sumS1 = 0, sumS2 = 0;
         for (int x : S1) {
@@ -57,4 +54,3 @@ public class Partition {
         return Math.abs(sumS1 - sumS2);
     }
 }
-
