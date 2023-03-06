@@ -1,5 +1,4 @@
 package partition.exactSol;
-
 import java.util.*;
 import java.util.function.Function;
 
@@ -30,11 +29,9 @@ public class DFS<T, S> {
             }
         }
     }
-
     private boolean isVertexVisited(Vertex<T> v) {
         return visited.contains(v);
     }
-
     private void setVertexVisited(Vertex<T> v) {
         visited.add(v);
     }

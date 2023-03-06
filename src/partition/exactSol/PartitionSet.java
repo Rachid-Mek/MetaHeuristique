@@ -14,7 +14,6 @@ public class PartitionSet {
             this.set.add(set[i]);
         }
         this.sum = Arrays.stream(set).sum();
-
     }
 
     private Vertex<List<Integer>> constructGraph() {
@@ -51,7 +50,7 @@ public class PartitionSet {
         // sum of the set using stream
         bestDifference = sum;
         DFS<List<Integer>, Void> search = new DFS<List<Integer>, Void>(v -> {
-            if (isBetterSolution(v.data) == true) {
+            if (isBetterSolution(v.data)) {
                 bestSolution = v.data;
                 bestDifference = Math.abs(sum - 2 * bestSolution.stream().mapToInt(Integer::intValue).sum());
             }
@@ -59,7 +58,7 @@ public class PartitionSet {
         });
 
         search.dfs(root);
-        // get the second set, i.e set - bestSolution. Set may contain duplicates, so
+        // get the second set, i e set - bestSolution. Set may contain duplicates, so
         // remove just the first occurrence
         List<Integer> secondSet = new ArrayList<Integer>(set);
         for (int i = 0; i < bestSolution.size(); i++) {
