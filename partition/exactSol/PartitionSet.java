@@ -2,22 +2,24 @@ package partition.exactSol;
 
 import java.util.*;
 import java.util.function.Function;
+import java.time.Duration;
+import java.time.Instant;
 
-class CustomSearch<T> extends GraphSearch<T> {
+class CustomSearch extends GraphSearch<List<Integer>> {
     Set<String> visited = new HashSet<String>();
 
-    CustomSearch(Function<Vertex<T>, Void> func) {
+    CustomSearch(Function<Vertex<List<Integer>>, Void> func) {
         super(func);
     }
 
     @Override
-    boolean isVertexVisited(Vertex<T> v) {
-        return visited.contains(v.toString());
+    boolean isVertexVisited(Vertex<List<Integer>> v) {
+        return visited.contains(v.value.toString());
     }
 
     @Override
-    void setVertexVisited(Vertex<T> v) {
-        visited.add(v.toString());
+    void setVertexVisited(Vertex<List<Integer>> v) {
+        visited.add(v.value.toString());
     }
 }
 
@@ -26,6 +28,8 @@ class SolutionDetails {
     int numOfSols;
     int set;
     List<List<List<Integer>>> partittions;
+    // excution time
+    Duration excutionTime;
 
     public SolutionDetails(List<List<List<Integer>>> partitions, int[] set) {
     };
@@ -49,15 +53,13 @@ public class PartitionSet {
     private List<List<Integer>> bestSolutionsFirstPartition;
     int bestDifference;
     int numOfVisitedNodes = 0;
-    // number of visited nodes before finding the solution
     int numOfVisitedNodesBeforeSolution;
+    Duration excutionTime;
 
     PartitionSet(int[] set) {
         this.set = new ArrayList<Integer>();
-        int[] sortedSet = set.clone();
-        Arrays.sort(sortedSet);
         sum = 0;
-        for (int i : sortedSet) {
+        for (int i : set) {
             this.set.add(i);
             sum += i;
         }
@@ -72,10 +74,14 @@ public class PartitionSet {
      * @param v
      */
     private void addNeighbors(Vertex<List<Integer>> v) {
-        List<Integer> nonUsedElements = setDifference(set, v.value);
+        List<Integer> nonUsedElements = setsDifference(set, v.value);
         for (int i : nonUsedElements) {
             List<Integer> list = new ArrayList<Integer>(v.value);
+
             list.add(i);
+            list.sort((a, b) -> {
+                return a > b ? a : b;
+            });
             Vertex<List<Integer>> newVertex = new Vertex<List<Integer>>(list);
             v.addNeighbor(newVertex);
         }
@@ -85,21 +91,22 @@ public class PartitionSet {
         // initial state is an empty set
         Vertex<List<Integer>> initialState = new Vertex<List<Integer>>(new ArrayList<Integer>());
         bestDifference = calcDifference(initialState.value);
-        GraphSearch<List<Integer>> search = new CustomSearch<List<Integer>>(v -> {
+        GraphSearch<List<Integer>> search = new CustomSearch(v -> {
             numOfVisitedNodes++;
             addNeighbors(v);
             return evaluateSolution(v);
         });
 
+        Instant startTime = Instant.now();
         search.dfs(initialState);
-
+        this.excutionTime = Duration.between(startTime, Instant.now());
         // list of pairs of partitions that minimize the difference
         List<List<List<Integer>>> solutions = new ArrayList<List<List<Integer>>>();
         for (List<Integer> set1 : bestSolutionsFirstPartition) {
             List<List<Integer>> pair = new ArrayList<List<Integer>>() {
                 {
                     add(set1);
-                    add(setDifference(set, set1));
+                    add(setsDifference(set, set1));
                 }
             };
             solutions.add(pair);
@@ -149,7 +156,7 @@ public class PartitionSet {
      * @param set2
      * @return
      */
-    private List<Integer> setDifference(List<Integer> set1, List<Integer> set2) {
+    private List<Integer> setsDifference(List<Integer> set1, List<Integer> set2) {
         List<Integer> difference = new ArrayList<Integer>(set1);
         for (int i = 0; i < set2.size(); i++) {
             difference.remove(set2.get(i));
