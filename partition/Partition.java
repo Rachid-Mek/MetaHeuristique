@@ -1,4 +1,4 @@
-package partition;
+package partition.notExactSol;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +26,7 @@ public class Partition {
         // en parcoure le tableau et en fait le partitionement selon la somme des deux
         // sous tableaux
 
-        for (int i = S.length; i > 0; --i) {
+        for (int i = S.length -1; i >= 0; i--) {
             int j = S[i];
             if (sumS1 <= sumS2) {
                 S1.add(j);
@@ -54,3 +54,4 @@ public class Partition {
         return Math.abs(sumS1 - sumS2);
     }
 }
+
