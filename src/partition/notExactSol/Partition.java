@@ -54,3 +54,4 @@ public class Partition {
         return Math.abs(sumS1 - sumS2);
     }
 }
+
