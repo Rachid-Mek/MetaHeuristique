@@ -1,0 +1,98 @@
+<html>
+
+<head>
+    <title>N Knights</title>
+    <style>
+        body {
+            height: 100vh;
+            background-color: #584f4f;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .board {
+            border-spacing: 0;
+        }
+
+        .board tr td {
+            width: 50px;
+            height: 50px;
+            background-color: #000;
+            border: 1px solid yellowgreen;
+        }
+
+        /* alternate square colors*/
+        .board tr:nth-child(odd) td:nth-child(even) {
+            background-color: #ffffff;
+        }
+
+        .board tr:nth-child(even) td:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .white {
+            background-color: #ffffff;
+        }
+
+        .black {
+            background-color: #000000;
+        }
+
+        .knight {
+            background-color: #ff0000;
+            border-radius: 100%;
+            width: 30px;
+            height: 30px;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <label>Board size</label>
+        <input type="number" id="boardSize">
+    </div>
+    <table class="board">
+    </table>
+
+    <div>
+        <input id="configArray">
+        <button id="showBtn">Show</button>
+    </div>
+    <script>
+        document.getElementById("boardSize").onblur = (e) => {
+            const boardSize = e.target.value;
+            const board = document.querySelector(".board");
+            board.innerHTML = "";
+            for (let i = 0; i < boardSize; i++) {
+                const row = document.createElement("tr");
+                for (let j = 0; j < boardSize; j++) {
+                    const cell = document.createElement("td");
+                    row.appendChild(cell);
+                }
+                board.appendChild(row);
+            }
+        }
+
+        document.getElementById("showBtn").onclick = (e) => {
+            const configArray = document.getElementById("configArray").value.split(",").map(x => Number.parseInt(x.trim()));
+            const board = document.querySelector(".board");
+            board.querySelectorAll(".knight").forEach(knight => {
+                knight.remove();
+            });
+            const boardSize = board.rows.length;
+            const cells = board.querySelectorAll("tr");
+            configArray.forEach((pos, index) => {
+                const cell = cells[pos].cells[index];
+                cell.innerHTML = `<div class="knight"></div>`;
+            });
+        }
+    </script>
+</body>
+
+</html>
