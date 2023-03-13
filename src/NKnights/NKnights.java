@@ -13,8 +13,8 @@ public class NKnights {
 
     /**
      * TAkes a chess board and a configuration of knights and returns true if
-     * the configuration is valid, i.e no knight attacks another
-     * 
+     * the configuration is valid, i_e no knight attacks another
+     *
      * @param configuration
      * @return
      */
@@ -28,7 +28,28 @@ public class NKnights {
         }
         return true;
     }
-
+    public List<List<Integer>> solveBFS() {
+        // TODO
+        // solutions list
+        List<List<Integer>> solutions = new ArrayList<List<Integer>>();
+        Queue<List<Integer>> queue = new LinkedList<List<Integer>>();
+        // start with an empty board
+        queue.offer(new ArrayList<Integer>());
+        while (!queue.isEmpty()) {
+            List<Integer> current = queue.poll();
+            if (!isValid(current))
+                continue;
+            if (current.size() == this.n) {
+                solutions.add(current);
+                continue;
+            }
+            List<Integer> children[] = getChildren(current);
+            for (List<Integer> child : children) {
+                queue.offer(child);
+            }
+        }
+        return solutions;
+    }
     public List<List<Integer>> solveDFS() {
         // TODO
         // solutions list
@@ -51,6 +72,8 @@ public class NKnights {
         }
         return solutions;
     }
+
+
 
     private List<Integer>[] getChildren(List<Integer> configuration) {
         int size = this.n - configuration.size();
