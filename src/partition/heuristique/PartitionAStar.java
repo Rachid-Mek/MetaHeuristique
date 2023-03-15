@@ -21,8 +21,4 @@ public class PartitionAStar {
         return Math.abs(sumS1 - sumS2);
     }
 
-    public static int g(int[] P, int i, int sum) {
-        return sum;
-    }
-
 }
