@@ -23,17 +23,7 @@ class CustomSearch extends GraphSearch<List<Integer>> {
     }
 }
 
-class SolutionDetails {
-    int difference;
-    int numOfSols;
-    int set;
-    List<List<List<Integer>>> partittions;
-    // excution time
-    Duration excutionTime;
 
-    public SolutionDetails(List<List<List<Integer>>> partitions, int[] set) {
-    };
-}
 
 public class PartitionSet {
     /**

@@ -73,7 +73,90 @@ public class NKnights {
         return solutions;
     }
 
+    // solveH1 est une solution qui utilise une heuristique qui calcule le nombre de conflits entre les pions
+    public List<List<Integer>> solveH1() {
+        // solutions list
+        List<List<Integer>> solutions = new ArrayList<List<Integer>>();
+        PriorityQueue<List<Integer>> queue = new PriorityQueue<List<Integer>>(Comparator.comparingInt(this::f1));
+        // start with an empty board
+        queue.offer(new ArrayList<Integer>());
+        while (!queue.isEmpty()) {
+            List<Integer> current = queue.poll();
+            if (!isValid(current))
+                continue;
+            if (current.size() == this.n) {
+                solutions.add(current);
+                continue;
+            }
+            List<Integer> children[] = getChildren(current);
+            for (List<Integer> child : children) {
+                queue.offer(child);
+            }
+        }
+        return solutions;
+    }
 
+    int g(List<Integer> configuration) {
+        return configuration.size();
+    }
+
+    // nombre de conflits entre les reines pour une configuration donnée
+    int h1(List<Integer> configuration) {
+        int menace = 0;
+        for (int i = 0; i < configuration.size(); i++) {
+            for (int j = i + 1; j < configuration.size(); j++) {
+                if (Math.abs(i - j) == Math.abs(configuration.get(i) - configuration.get(j))) {
+                    menace++;
+                }
+            }
+        }
+        return menace;
+    }
+    int f1(List<Integer> configuration) {
+        return g(configuration) + h1(configuration);
+    }
+
+    // suggest another heuristic function h2 to use it in solveH2 that is admissible with comments and explain why it is admissible
+    // h2 Number of Open Squares
+
+    int h2(List<Integer> configuration) {
+        int openSquares = 0;
+        for (int i = 0; i < configuration.size(); i++) {
+            for (int j = i + 1; j < configuration.size(); j++) {
+                if (Math.abs(i - j) != Math.abs(configuration.get(i) - configuration.get(j))) {
+                    openSquares++;
+                }
+            }
+        }
+        return openSquares;
+    }
+
+
+    int f2(List<Integer> configuration) {
+        return g(configuration) + h2(configuration);
+    }
+
+    public List<List<Integer>> solveH2() {
+        // solutions list
+        List<List<Integer>> solutions = new ArrayList<List<Integer>>();
+        PriorityQueue<List<Integer>> queue = new PriorityQueue<List<Integer>>(Comparator.comparingInt(this::f2));
+        // start with an empty board
+        queue.offer(new ArrayList<Integer>());
+        while (!queue.isEmpty()) {
+            List<Integer> current = queue.poll();
+            if (!isValid(current))
+                continue;
+            if (current.size() == this.n) {
+                solutions.add(current);
+                continue;
+            }
+            List<Integer> children[] = getChildren(current);
+            for (List<Integer> child : children) {
+                queue.offer(child);
+            }
+        }
+        return solutions;
+    }
 
     private List<Integer>[] getChildren(List<Integer> configuration) {
         int size = this.n - configuration.size();

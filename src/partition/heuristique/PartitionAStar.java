@@ -1,26 +1,18 @@
 package partition.heuristique;
-
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
-
-class Node {
-    ArrayList<Integer> s1;
-    int f, h;
-
-    public Node(ArrayList<Integer> s1, int f, int h) {
-        this.s1 = s1;
-        this.f = f;
-        this.h = h;
-    }
-}
 
 public class PartitionAStar {
     ArrayList<Integer> set;
     private int setSum;
-    private PriorityQueue<Node> nonVisitedNodes = new PriorityQueue<Node>((n1, n2) -> Integer.compare(n1.f, n2.f));
+    // liste ouverte
+    private PriorityQueue<Node> nonVisitedNodes = new PriorityQueue<>(Comparator.comparingInt(n -> n.f));
+    public Duration excutionTime;
 
     public PartitionAStar(int[] set) {
         this.setSum = 0;
-        this.set = new ArrayList<Integer>();
+        this.set = new ArrayList<>();
         for (int i : set) {
             this.set.add(i);
             this.setSum += i;
@@ -28,19 +20,23 @@ public class PartitionAStar {
     }
 
     public List<ArrayList<Integer>> partition() {
-        // initial state S1 = [], S2 = set
-        ArrayList<Integer> initalS1 = new ArrayList<Integer>();
-        Node initialState = new Node(initalS1, f(initalS1), h(initalS1));
+        //S1 =[]
+        ArrayList<Integer> initialS1 = new ArrayList<>();
+        Node initialState = new Node(initialS1, f(initialS1));
+        Instant startTime = Instant.now(); // start the timer
         nonVisitedNodes.add(initialState);
         while (!nonVisitedNodes.isEmpty()) {
             Node current = nonVisitedNodes.poll();
-            ArrayList<Integer> successors[] = generateSuccessors(current.s1);
-            for (ArrayList<Integer> s : successors) {
-                Node successor = new Node(s, f(s), h(s));
-                nonVisitedNodes.add(successor);
+            if (h(current.s1)==0) {
+                // stop the timer
+                this.excutionTime = Duration.between(startTime, Instant.now());
+                return new ArrayList<>(Arrays.asList(current.s1, setDifference(set, current.s1)));
             }
-            if (isFinalState(current)) {
-                return new ArrayList<ArrayList<Integer>>(Arrays.asList(current.s1, setDifference(set, current.s1)));
+            ArrayList<Integer>[] successors = generateSuccessors(current.s1);
+            // ajouter les successeurs à la liste ouverte
+            for (ArrayList<Integer> s : successors) {
+                Node successor = new Node(s, f(s));
+                nonVisitedNodes.add(successor);
             }
         }
         return null;
@@ -48,14 +44,9 @@ public class PartitionAStar {
 
     public static int g(ArrayList<Integer> s1) {
         return s1.size();
-        // int sumS1 = 0;
-        // for (int i : s1) {
-        // sumS1 += i;
-        // }
-        // return sumS1;
     }
 
-    // la somme minimale nécessaire pour atteindre la solution
+    // la somme minimale entre s1 et s2 nécessaire pour atteindre la solution
     public int h(ArrayList<Integer> s1) {
         int sumS1 = 0;
         for (int i : s1) {
@@ -68,39 +59,26 @@ public class PartitionAStar {
         return g(s1) + h(s1);
     }
 
-    public boolean isFinalState(Node currentState) {
-        Node nextState = nonVisitedNodes.peek();
-        // TODO: check this
-        if (nextState == null) {
-            return true;
-        }
-        if (currentState.h < nextState.h) {
-            return true;
-        }
-        return false;
-    }
-
-    // set difference method
+    // set difference pour avoir les éléments de s2 qui ne sont pas dans s1
     private ArrayList<Integer> setDifference(ArrayList<Integer> s1, ArrayList<Integer> s2) {
-        ArrayList<Integer> diff = new ArrayList<Integer>(s1);
+        ArrayList<Integer> diff = new ArrayList<>(s1);
         for (int i : s2) {
-            diff.removeIf(x -> x == i);
+            diff.removeIf(x -> x == i); // on enlève les éléments de s2 from s1 pour avoir la différence entre les deux
         }
         return diff;
     }
 
+    // générer les successeurs possible de s
     public ArrayList<Integer>[] generateSuccessors(ArrayList<Integer> s) {
-        // get the difference between set and s
+        // prendre la différence entre set et s pour avoir les éléments qui ne sont pas dans s
         ArrayList<Integer> diff = setDifference(set, s);
-        // add elements of diff to s to get all successors
-        // int l[] = new List[diff.size()];
+        // ajouter les éléments de diff à s pour avoir les successeurs
         ArrayList<Integer>[] successors = new ArrayList[diff.size()];
         for (int i = 0; i < diff.size(); i++) {
-            ArrayList<Integer> newS = new ArrayList<Integer>(s);
+            ArrayList<Integer> newS = new ArrayList<>(s);
             newS.add(diff.get(i));
             successors[i] = newS;
         }
-
         return successors;
     }
 }
