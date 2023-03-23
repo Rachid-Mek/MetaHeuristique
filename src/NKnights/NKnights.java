@@ -102,6 +102,25 @@ public class NKnights {
 
     // nombre de conflits entre les reines pour une configuration donnée
     int h1(List<Integer> configuration) {
+        int conflit = 0;
+        for (int i = 0; i < configuration.size(); i++) {
+            for (int j = i + 1; j < configuration.size(); j++) {
+                if (Math.abs(i - j) == Math.abs(configuration.get(i) - configuration.get(j))
+                        || Objects.equals(configuration.get(i), configuration.get(j))) {
+                    conflit++;
+                }
+            }
+        }
+        return conflit;
+    }
+    int f1(List<Integer> configuration) {
+        return g(configuration) + h1(configuration);
+    }
+
+    // suggest another heuristic function h2 to use it in solveH2 that is admissible with comments and explain why it is admissible
+
+    // h2 est une heuristique qui calcule le nombre de cases attaquées par les pions
+    int h2(List<Integer> configuration) {
         int menace = 0;
         for (int i = 0; i < configuration.size(); i++) {
             for (int j = i + 1; j < configuration.size(); j++) {
@@ -111,24 +130,6 @@ public class NKnights {
             }
         }
         return menace;
-    }
-    int f1(List<Integer> configuration) {
-        return g(configuration) + h1(configuration);
-    }
-
-    // suggest another heuristic function h2 to use it in solveH2 that is admissible with comments and explain why it is admissible
-    // h2 Number of Open Squares
-
-    int h2(List<Integer> configuration) {
-        int openSquares = 0;
-        for (int i = 0; i < configuration.size(); i++) {
-            for (int j = i + 1; j < configuration.size(); j++) {
-                if (Math.abs(i - j) != Math.abs(configuration.get(i) - configuration.get(j))) {
-                    openSquares++;
-                }
-            }
-        }
-        return openSquares;
     }
 
 
