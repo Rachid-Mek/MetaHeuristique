@@ -24,7 +24,6 @@ public class Main {
         List<String> rows = new ArrayList<>();
         int i = 1;
         for (int [] set : sets  ) {
-
             PartitionSet instance = new PartitionSet(set);
             System.out.print("Set: ");
             printSet(set);

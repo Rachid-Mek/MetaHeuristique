@@ -1,12 +1,17 @@
 package NKnights;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
-public class NKnights {
+public class NQueen {
     int n;
     List<List<Integer>> solutions;
+    long numOfGeneratedNodes;
+    long numOfDevelopedNodes ;
+    Duration excutionTime;
 
-    public NKnights(int n) {
+    public NQueen(int n) {
         this.n = n;
         this.solutions = new ArrayList<List<Integer>>();
     }
@@ -29,70 +34,96 @@ public class NKnights {
         return true;
     }
     public List<List<Integer>> solveBFS() {
-        // TODO
-        // solutions list
+        Instant startTime = Instant.now();
+        numOfGeneratedNodes = 0;
+        numOfDevelopedNodes = 0;
         List<List<Integer>> solutions = new ArrayList<List<Integer>>();
         Queue<List<Integer>> queue = new LinkedList<List<Integer>>();
         // start with an empty board
         queue.offer(new ArrayList<Integer>());
         while (!queue.isEmpty()) {
+
             List<Integer> current = queue.poll();
-            if (!isValid(current))
+            if (!isValid(current)) {
                 continue;
+            }
+
             if (current.size() == this.n) {
                 solutions.add(current);
                 continue;
             }
+            numOfDevelopedNodes++;
+
             List<Integer> children[] = getChildren(current);
             for (List<Integer> child : children) {
                 queue.offer(child);
+                numOfGeneratedNodes++;
             }
         }
+        excutionTime = Duration.between(startTime, Instant.now());
         return solutions;
     }
     public List<List<Integer>> solveDFS() {
         // TODO
         // solutions list
+        //start timer
+        Instant startTime = Instant.now();
+        numOfGeneratedNodes = 0;
+        numOfDevelopedNodes = 0;
         List<List<Integer>> solutions = new ArrayList<List<Integer>>();
         Stack<List<Integer>> stack = new Stack<List<Integer>>();
         // start with an empty board
         stack.push(new ArrayList<Integer>());
         while (!stack.isEmpty()) {
             List<Integer> current = stack.pop();
-            if (!isValid(current))
+            if (!isValid(current)){
                 continue;
+            }
             if (current.size() == this.n) {
                 solutions.add(current);
                 continue;
             }
+            numOfDevelopedNodes++;
             List<Integer> children[] = getChildren(current);
             for (List<Integer> child : children) {
+                numOfGeneratedNodes++;
                 stack.push(child);
             }
         }
+        //end timer
+        excutionTime = Duration.between(startTime, Instant.now());
         return solutions;
     }
 
     // solveH1 est une solution qui utilise une heuristique qui calcule le nombre de conflits entre les pions
     public List<List<Integer>> solveH1() {
         // solutions list
+        //start timer
+        Instant startTime = Instant.now();
+        numOfGeneratedNodes = 0;
+        numOfDevelopedNodes = 0;
         List<List<Integer>> solutions = new ArrayList<List<Integer>>();
         PriorityQueue<List<Integer>> queue = new PriorityQueue<List<Integer>>(Comparator.comparingInt(this::f1));
         // start with an empty board
         queue.offer(new ArrayList<Integer>());
         while (!queue.isEmpty()) {
             List<Integer> current = queue.poll();
-            if (!isValid(current))
+            if (!isValid(current)){
                 continue;
+            }
             if (current.size() == this.n) {
                 solutions.add(current);
                 continue;
             }
+            numOfDevelopedNodes++;
             List<Integer> children[] = getChildren(current);
             for (List<Integer> child : children) {
                 queue.offer(child);
+                numOfGeneratedNodes++;
             }
         }
+        //end timer
+        excutionTime = Duration.between(startTime, Instant.now());
         return solutions;
     }
 
@@ -117,9 +148,7 @@ public class NKnights {
         return g(configuration) + h1(configuration);
     }
 
-    // suggest another heuristic function h2 to use it in solveH2 that is admissible with comments and explain why it is admissible
-
-    // h2 est une heuristique qui calcule le nombre de cases attaquées par les pions
+     //h2 est une heuristique qui calcule le nombre de cases attaquées par les pions
     int h2(List<Integer> configuration) {
         int menace = 0;
         for (int i = 0; i < configuration.size(); i++) {
@@ -138,24 +167,31 @@ public class NKnights {
     }
 
     public List<List<Integer>> solveH2() {
-        // solutions list
+        Instant startTime = Instant.now();
+        numOfDevelopedNodes  = 0;
+        numOfGeneratedNodes = 0;
         List<List<Integer>> solutions = new ArrayList<List<Integer>>();
         PriorityQueue<List<Integer>> queue = new PriorityQueue<List<Integer>>(Comparator.comparingInt(this::f2));
         // start with an empty board
         queue.offer(new ArrayList<Integer>());
         while (!queue.isEmpty()) {
             List<Integer> current = queue.poll();
-            if (!isValid(current))
+            if (!isValid(current)){
                 continue;
+            }
             if (current.size() == this.n) {
                 solutions.add(current);
                 continue;
             }
+            numOfDevelopedNodes++;
             List<Integer> children[] = getChildren(current);
             for (List<Integer> child : children) {
                 queue.offer(child);
+                numOfGeneratedNodes++;
             }
         }
+        //end timer
+        excutionTime = Duration.between(startTime, Instant.now());
         return solutions;
     }
 
@@ -175,5 +211,17 @@ public class NKnights {
             children[i] = child;
         }
         return children;
+    }
+
+    public long getNumOfGeneratedNodes() {
+        return numOfGeneratedNodes;
+    }
+
+    public long getNumOfDevelopedNodes() {
+        return numOfDevelopedNodes;
+    }
+
+    public Duration getExcutionTime() {
+        return excutionTime;
     }
 }
