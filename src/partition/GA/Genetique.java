@@ -1,11 +1,12 @@
 package partition.GA;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Genetique {
-    final int maxGenerations = 10;
+    final int maxGenerations = 1000;
     ArrayList<Integer> set;
     private int setSum;
 
@@ -17,108 +18,118 @@ public class Genetique {
             this.setSum += i;
         }
     }
+
     public ArrayList<Node> generateInitialPopulation(int m) {
         ArrayList<Node> population = new ArrayList<>();
         for (int i = 0; i < m; i++) {
-            ArrayList<Integer> s1 = new ArrayList<>();
-            for (Integer integer : set) {
-                if (Math.random() < 0.5) {
-                    s1.add(integer);
-                }
-                else {
-                    s1.add(0);
-                }
+            ArrayList<Integer> sol = new ArrayList<>();
+            for (int j = 0; j < set.size(); j++) {
+                sol.add((int) (Math.random() * 2)); // Valeur aléatoire 0 ou 1
             }
-            int fit = fitness(s1);
-            population.add(new Node(s1, fit));
+            int fitness = fitness(sol);
+            population.add(new Node(sol, fitness));
         }
         return population;
     }
 
+
     // fonction d'évaluation (fitness)
-    int fitness(ArrayList<Integer> s1) {
+    public int fitness(ArrayList<Integer> sol) {
         int sumS1 = 0;
-        for (int i : s1) {
-            sumS1 += i;
+        int sumS2 = 0;
+        for (int i = 0; i < sol.size(); i++) {
+            if (sol.get(i) == 0) {
+                sumS1 += set.get(i);
+            } else {
+                sumS2 += set.get(i);
+            }
         }
-        return Math.abs(this.setSum - 2 * sumS1);
+        return Math.abs(sumS1 - sumS2);
     }
 
     // sélection
     public ArrayList<Node> selection(ArrayList<Node> population) {
-        ArrayList<Node> selected = new ArrayList<>();
-        int n = population.size();
+        ArrayList<Node> selectedPopulation = new ArrayList<>();
+        int totalFitness = 0;
         for (Node node : population) {
-            int r = (int) (Math.random() * n);
-            if (node.f < population.get(r).f) {
-                selected.add(node);
-            } else {
-                selected.add(population.get(r));
+            totalFitness += node.f;
+        }
+        while (selectedPopulation.size() < population.size()) {
+            int r = (int) (Math.random() * totalFitness);
+            int sum = 0;
+            for (Node node : population) {
+                sum += node.f;
+                if (sum >= r) {
+                    selectedPopulation.add(node);
+                    break;
+                }
             }
         }
-        return selected;
+        return selectedPopulation;
     }
-    public ArrayList<Integer> setDifference(ArrayList<Integer> s1, ArrayList<Integer> s2) {
-        ArrayList<Integer> diff = new ArrayList<>(s1);
-        for (int i : s2) {
-            diff.removeIf(x -> x == i); // on enlève les éléments de s2 from s1 pour avoir la différence entre les deux
-        }
-        return diff;
-    }
+
     // croisement
     public Node crossOver(Node parent1, Node parent2) {
-        ArrayList<Integer> childS1 = new ArrayList<>();
-        if(parent1.s1.size() != parent2.s1.size()){
-            System.out.println("Parent 1 size: " + parent1.s1.size() + ", Parent 2 size: " + parent2.s1.size());
-            throw new IllegalArgumentException("Les parents ont des tailles différentes.");
-        }
-        int n = parent1.s1.size();
+        ArrayList<Integer> childSol = new ArrayList<>();
+        int n = parent1.sol.size();
         int crossoverPoint = (int) (Math.random() * n); // point de croisement aléatoire
         for (int i = 0; i < crossoverPoint; i++) {
-            childS1.add(parent1.s1.get(i));
+            childSol.add(parent1.sol.get(i));
         }
         for (int i = crossoverPoint; i < n; i++) {
-            childS1.add(parent2.s1.get(i));
+            childSol.add(parent2.sol.get(i));
         }
-        int childFitness = fitness(childS1);
-        return new Node(childS1, childFitness);
+        int childFitness = fitness(childSol);
+        return new Node(childSol, childFitness);
     }
 
     // mutation
-    public Node mutation(Node child) {
-        ArrayList<Integer> childS1 = child.s1;
-        ArrayList<Integer> childS2 = setDifference(set, childS1);
-        int n = childS1.size();
-        int mutationPoint = (int) (Math.random() * n); // point de mutation aléatoire
-        int element = childS1.get(mutationPoint);
-        childS1.remove(mutationPoint);
-        childS2.add(element);
-        int childFitness = fitness(childS1);
-        return new Node(childS1, childFitness);
+    public Node mutation(Node node) {
+        ArrayList<Integer> sol = node.sol;
+        int size = sol.size();
+        int mutationIndex = (int) (Math.random() * size); // Index aléatoire à muter
+        int mutatedValue = sol.get(mutationIndex) == 0 ? 1 : 0; // Inversion de la valeur à l'index
+        sol.set(mutationIndex, mutatedValue);
+        int fitness = fitness(sol);
+        return new Node(sol, fitness);
     }
 
     //remplacement de la population en prend que les meilleurs individus de la population par rapport au fitness
 
     public ArrayList<Node> remplacement(ArrayList<Node> population, ArrayList<Node> newPopulation) {
-        ArrayList<Node> selected = new ArrayList<>();
+        // Combinez les deux listes triées par ordre croissant de fitness
+        ArrayList<Node> combined = new ArrayList<>();
+        combined.addAll(population);
+        combined.addAll(newPopulation);
+        Collections.sort(combined, Comparator.comparingInt(n -> n.f)); // Tri par ordre croissant de fitness
+        // Sélectionnez les N meilleurs individus
         int n = population.size();
-        for (int i = 0; i < n; i++) {
-            if (population.get(i).f < newPopulation.get(i).f) {
-                selected.add(population.get(i));
-            } else {
-                selected.add(newPopulation.get(i));
-            }
-        }
+        ArrayList<Node> selected = new ArrayList<>(combined.subList(0, n));
         return selected;
     }
+    // fonction principale qui retourn la solution sol et s2 en utilisant les fonctions précédentes
 
-    // fonction principale qui retourn la solution s1 et s2 en utilisant les fonctions précédentes
+    public ArrayList<Integer> getBestSolution(ArrayList<Node> population) {
+        int min = Integer.MAX_VALUE;
+        ArrayList<Integer> bestSolution = new ArrayList<>();
+        for (Node node : population) {
+            if (node.f < min) {
+                min = node.f;
+                bestSolution = node.sol;
+            }
+        }
+        return bestSolution;
+    }
 
     public List<ArrayList<Integer>> solve() {
-        ArrayList<Node> population = generateInitialPopulation(2);
+        // Génération de la population initiale
+        ArrayList<Node> population = generateInitialPopulation(100);
         int generation = 0;
         while (generation < maxGenerations) {
+            // Sélection des meilleurs individus
             population = selection(population);
+
+            // Création d'une nouvelle population à partir de croisements et mutations
             ArrayList<Node> newPopulation = new ArrayList<>();
             for (int i = 0; i < population.size(); i++) {
                 Node parent1 = population.get(i);
@@ -127,18 +138,21 @@ public class Genetique {
                 child = mutation(child);
                 newPopulation.add(child);
             }
+
+            // Remplacement de l'ancienne population par la nouvelle
             population = remplacement(population, newPopulation);
             generation++;
         }
+        ArrayList<Integer> bestSol = getBestSolution(population);
         ArrayList<Integer> s1 = new ArrayList<>();
-        int min = Integer.MAX_VALUE;
-        for (Node node : population) {
-            if (node.f < min) {
-                min = node.f;
-                s1 = node.s1;
+        ArrayList<Integer> s2 = new ArrayList<>();
+        for (int i = 0; i < set.size(); i++) {
+            if (bestSol.get(i) == 0) {
+                s1.add(set.get(i));
+            } else {
+                s2.add(set.get(i));
             }
         }
-        ArrayList<Integer> s2 = setDifference(set, s1);
         List<ArrayList<Integer>> result = new ArrayList<>();
         result.add(s1);
         result.add(s2);
