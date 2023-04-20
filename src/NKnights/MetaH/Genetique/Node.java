@@ -1,4 +1,4 @@
-package NKnights.MetaH;
+package NKnights.MetaH.Genetique;
 
 import java.util.ArrayList;
 

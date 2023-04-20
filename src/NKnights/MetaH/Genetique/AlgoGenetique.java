@@ -1,4 +1,4 @@
-package NKnights.MetaH;
+package NKnights.MetaH.Genetique;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -130,14 +130,8 @@ public class AlgoGenetique {
             ArrayList<Node> selectedPopulation = selection(population);
             ArrayList<Node> newPopulation = crossover(selectedPopulation);
             newPopulation = mutation(newPopulation);
-            population.addAll(newPopulation);
-            population.sort(new Comparator<Node>() {
-                @Override
-                public int compare(Node o1, Node o2) {
-                    return Integer.compare(o1.f, o2.f);
-                }
-            });
-            population.subList(populationSize, population.size()).clear(); // On garde seulement les meilleurs individus
+            // On garde seulement les meilleurs individus
+            population = replace(population, newPopulation);
             generation++;
         }
         Node best = getBestSol(population);
@@ -145,9 +139,25 @@ public class AlgoGenetique {
     }
 
     public static void main(String[] args) {
-        AlgoGenetique algoGenetique = new AlgoGenetique(14, 100, 100, 0.1);
+        AlgoGenetique algoGenetique = new AlgoGenetique(30, 300, 10000, 0.3);
         ArrayList<Integer> solution = algoGenetique.solve();
         System.out.println(solution);
+        System.out.println(algoGenetique.conflict(solution));
+    }
+
+    public int conflict(ArrayList<Integer> sol) {
+        int conflit = 0;
+        for (int i = 0; i < sol.size(); i++) {
+            for (int j = i + 1; j < sol.size(); j++) {
+                if (sol.get(i) == sol.get(j)) {
+                    conflit++;
+                }
+                else if (Math.abs(sol.get(i) - sol.get(j)) == Math.abs(i - j)) {
+                    conflit++;
+                }
+            }
+        }
+        return conflit;
     }
 
 }
