@@ -1,5 +1,7 @@
 package NKnights.MetaH.PSO;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Arrays;
@@ -154,13 +156,14 @@ public class Pso {
         return bestFitness;
     }
 
-    public static void performSensitivityAnalysis(int boardSize) {
+    public static void variation() {
         // Set the parameter ranges to explore
-        int[] numIterations = {100, 500, 1000, 5000};
-        int[] numParticles = {20, 50, 100};
-        double[] c1 = {1.0, 1.5, 2.0};
-        double[] c2 = {1.0, 1.5, 2.0};
-        double[] w = {0.4, 0.7, 1.0};
+        int [] boardSizes = {50};
+        int[] numIterations = {100, 500};
+        int[] numParticles = {100, 300, 500,1000};
+        double[] c1 = {1.0, 2.0};
+        double[] c2 = {1.0, 2.0};
+        double[] w = {0.7, 1.0};
 
         // Initialize the best fitness and corresponding parameters
         double bestFitness = Double.POSITIVE_INFINITY;
@@ -171,32 +174,35 @@ public class Pso {
         double bestW = 0.0;
 
         // Loop over all parameter combinations
-        for (int i = 0; i < numIterations.length; i++) {
-            for (int j = 0; j < numParticles.length; j++) {
-                for (int k = 0; k < c1.length; k++) {
-                    for (int l = 0; l < c2.length; l++) {
-                        for (int m = 0; m < w.length; m++) {
-                            // Create a new PSO instance with the current parameters
-                            Pso pso = new Pso(boardSize, numIterations[i], numParticles[j], c1[k], c2[l], w[m]);
+        for (int boardSize : boardSizes) {
+            for (int numIteration : numIterations) {
+                for (int numParticle : numParticles) {
+                    for (double v : c1) {
+                        for (double value : c2) {
+                            for (double item : w) {
+                                // Create a new PSO instance with the current parameters
+                                Pso pso = new Pso(boardSize, numIteration, numParticle, v, value, item);
+                                long startTime = System.currentTimeMillis();
+                                // Run the PSO algorithm
+                                pso.solvePso();
+                                long endTime = System.currentTimeMillis();
+                                System.out.println("Execution time: " + (endTime - startTime) + " ms");
 
-                            // Run the PSO algorithm
-                            pso.solvePso();
-
-                            // Check if the current solution is better than the previous best
-                            if (pso.getBestFitness() < bestFitness) {
-                                bestFitness = pso.getBestFitness();
-                                bestIterations = numIterations[i];
-                                bestParticles = numParticles[j];
-                                bestC1 = c1[k];
-                                bestC2 = c2[l];
-                                bestW = w[m];
+                                // Check if the current solution is better than the previous best
+                                if (pso.getBestFitness() < bestFitness) {
+                                    bestFitness = pso.getBestFitness();
+                                    bestIterations = numIteration;
+                                    bestParticles = numParticle;
+                                    bestC1 = v;
+                                    bestC2 = value;
+                                    bestW = item;
+                                }
                             }
                         }
                     }
                 }
             }
         }
-
         // Print the best parameters and corresponding fitness
         System.out.println("Best parameters found: ");
         System.out.println("Number of iterations: " + bestIterations);
@@ -209,27 +215,22 @@ public class Pso {
 
 
     public static void main(String[] args) {
-
         // Set the problem parameters
-        int boardSize = 40;
+        int boardSize = 100;
         int numIterations = 500;
         int numParticles =300;
         double c1 =2;
         double c2 = 2;
         double w = 0.9;
 
-
-        long startTime = System.currentTimeMillis();
         // Create a PSO instance
         Pso pso = new Pso(boardSize, numIterations, numParticles, c1, c2, w);
-        long endTime = System.currentTimeMillis();
-        long executionTime = endTime - startTime;
-
-
         // Run the PSO algorithm
+        Instant startTime = Instant.now();
         pso.solvePso();
+        Instant endTime = Instant.now();
+        long executionTime = Duration.between(startTime, endTime).toSeconds();
         System.out.println("Execution time: " + executionTime + " ms");
-
     }
     public static int CountConflict(int[] position) {
         int conflict = 0;
@@ -245,5 +246,4 @@ public class Pso {
         }
         return conflict;
     }
-
 }

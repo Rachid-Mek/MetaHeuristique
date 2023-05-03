@@ -90,8 +90,8 @@ public class AlgoGenetique {
 
     private ArrayList<Node> mutation(ArrayList<Node> population) {
         ArrayList<Node> newPopulation = new ArrayList<>();
-        for (int i = 0; i < population.size(); i++) {
-            ArrayList<Integer> sol = population.get(i).sol;
+        for (Node node : population) {
+            ArrayList<Integer> sol = node.sol;
             for (int j = 0; j < sol.size(); j++) {
                 if (Math.random() < mutationRate) {
                     sol.set(j, (int) (Math.random() * n));
@@ -113,6 +113,8 @@ public class AlgoGenetique {
         population.subList(populationSize, population.size()).clear();
         return population;
     }
+
+    //selectioner le meilleur selon le fitness
     private Node getBestSol(ArrayList<Node> population) {
         Node bestSol = population.get(0);
         for (Node sol : population) {
@@ -123,10 +125,16 @@ public class AlgoGenetique {
         return bestSol;
     }
 
-    public ArrayList<Integer> solve() {
+    public void solve() {
         ArrayList<Node> population = generatePopulation();
         int generation = 0;
         while (generation < maxGenerations) {
+            if (getBestSol(population).f == 0) {
+                Node best = getBestSol(population);
+                System.out.println("Solution : " + best.sol);
+                System.out.println("Conflict : " + best.f);
+                return;
+            }
             ArrayList<Node> selectedPopulation = selection(population);
             ArrayList<Node> newPopulation = crossover(selectedPopulation);
             newPopulation = mutation(newPopulation);
@@ -135,14 +143,37 @@ public class AlgoGenetique {
             generation++;
         }
         Node best = getBestSol(population);
-        return best.sol;
+        System.out.println("Solution : " + best.sol);
+        System.out.println("Conflict : " + best.f);
+    }
+
+    //variation de parametre et affichage de la solution + fitness + temps d'execution
+    public static void variateParameters(){
+        int[] sizeBoard ={30,50};
+        int[] sizePopulation ={300,500};
+        int[] maxGenerations ={1000,2000};
+        double[] mutationRate ={0.3,0.5};
+        for (int value : sizeBoard) {
+            for (int i : sizePopulation) {
+                for (int maxGeneration : maxGenerations) {
+                    for (double v : mutationRate) {
+                        AlgoGenetique algoGenetique = new AlgoGenetique(value, i, maxGeneration, v);
+                        long startTime = System.currentTimeMillis();
+                        algoGenetique.solve();
+                        long endTime = System.currentTimeMillis();
+                        System.out.println("Temps d'execution : " + (endTime - startTime) + " ms");
+                    }
+                }
+            }
+        }
     }
 
     public static void main(String[] args) {
-        AlgoGenetique algoGenetique = new AlgoGenetique(30, 300, 10000, 0.3);
-        ArrayList<Integer> solution = algoGenetique.solve();
-        System.out.println(solution);
-        System.out.println(algoGenetique.conflict(solution));
+        AlgoGenetique algoGenetique = new AlgoGenetique(50, 1000, 1000, 0.3);
+        long startTime = System.currentTimeMillis();
+        algoGenetique.solve();
+        long endTime = System.currentTimeMillis();
+        System.out.println("Temps d'execution : " + (endTime - startTime) + " ms");
     }
 
     public int conflict(ArrayList<Integer> sol) {
