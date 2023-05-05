@@ -51,7 +51,7 @@ public class AlgoGenetique {
     private ArrayList<Node> selection(ArrayList<Node> population) {
         ArrayList<Node> selectedPopulation = new ArrayList<>();
         int n = population.size(); // taille de la population
-        int k = (int) Math.round(n * 0.2); // nombre d'individus à sélectionner
+        int k = (int) Math.round(n * 0.8); // nombre d'individus à sélectionner
         population.sort(new Comparator<Node>() { //on trie la population selon la fonction d'évaluation
             @Override
             public int compare(Node o1, Node o2) {
