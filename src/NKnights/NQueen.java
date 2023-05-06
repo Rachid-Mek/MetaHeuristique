@@ -149,17 +149,19 @@ public class NQueen {
     }
 
      //h2 est une heuristique qui calcule le nombre de cases attaquées par les pions
-    int h2(List<Integer> configuration) {
-        int menace = 0;
-        for (int i = 0; i < configuration.size(); i++) {
-            for (int j = i + 1; j < configuration.size(); j++) {
-                if (Math.abs(i - j) == Math.abs(configuration.get(i) - configuration.get(j))) {
-                    menace++;
-                }
-            }
-        }
-        return menace;
-    }
+     public int h2(List<Integer> queens) {
+         int threats = 0;
+         for (int i = 0; i < queens.size(); i++) {
+             for (int j = 0; j < i; j++) {
+                 int dx = Math.abs(queens.get(i) - queens.get(j));
+                 int dy = i - j;
+                 if (dx == 0 || dx == dy) {
+                     threats++;
+                 }
+             }
+         }
+         return threats;
+     }
 
 
     int f2(List<Integer> configuration) {

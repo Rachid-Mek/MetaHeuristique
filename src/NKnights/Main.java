@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             // create a file object to write the results
-            File csvFile = new File("results.csv");
+            File csvFile = new File("results2.csv");
             FileWriter csvWriter = new FileWriter(csvFile);
 
             // write headers to the csv file
@@ -25,6 +25,8 @@ public class Main {
             csvWriter.append("Generated Nodes");
             csvWriter.append(",");
             csvWriter.append("Developed Nodes");
+            csvWriter.append(",");
+            csvWriter.append("Solution");
             csvWriter.append("\n");
 
             // solve the problem for different values of N
@@ -34,9 +36,10 @@ public class Main {
                 Duration executionTime;
                 long generatedNodes;
                 long developedNodes;
+                //solution
                 System.out.println("Solving for N = " + n);
                 // solve using BFS
-                solutions = nQueen.solveBFS();
+                solutions = nQueen.solveH2();
                 executionTime = nQueen.getExcutionTime();
                 generatedNodes = nQueen.getNumOfGeneratedNodes();
                 developedNodes = nQueen.getNumOfDevelopedNodes();
@@ -49,6 +52,8 @@ public class Main {
                 csvWriter.append(String.valueOf(generatedNodes));
                 csvWriter.append(",");
                 csvWriter.append(String.valueOf(developedNodes));
+                csvWriter.append(",");
+                csvWriter.append(solutions.get(0).toString());
                 csvWriter.append("\n");
             }
 

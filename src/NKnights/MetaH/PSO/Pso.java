@@ -125,32 +125,49 @@ public class Pso {
         // Initialize the swarm
         initializeSwarm();
 
+        // Track the best fitness value from the previous iteration
+        int previousBestFitness = bestFitness;
+
         // Main loop of the algorithm
         for (int i = 0; i < nbIterations; i++) {
             // Update the best position found so far (global best)
             updateBestPosition();
+
+            // Solution found
+            if (Pso.CountConflict(bestPosition) == 0) {
+                System.out.println("Solution found: " + Arrays.toString(bestPosition));
+                System.out.println("Conflicts: " + Pso.CountConflict(bestPosition));
+                return;
+            }
+
+            // Check if the algorithm has converged to a local optimum
+            if (bestFitness == previousBestFitness) {
+                System.out.println("Converged to a local optimum.");
+                return;
+            }
+
             // Update the position and velocity of each particle
             for (Particle p : swarm) {
-                // Solution found
-                if (Pso.CountConflict(p.getBestPosition()) == 0) {
-                    System.out.println("Solution found: " + Arrays.toString(bestPosition));
-                    System.out.println("Conflicts: " + Pso.CountConflict(bestPosition));
-                    return;
-                }
                 // Update the velocity of the particle
-                 updateVelocity(p);
+                updateVelocity(p);
 
-                //update the position of the particle
+                // Update the position of the particle
                 updatePosition(p);
-                // si la nouvelle position est meilleure que la meilleure position de la particule
-               if(bestFitness < p.getBestFitness()){
-                   p.setBestFitness(bestFitness);
-                   p.setBestPosition(p.getPosition().clone());
-               }
+
+                // Update the best position of the particle
+                if (bestFitness < p.getBestFitness()) {
+                    p.setBestFitness(bestFitness);
+                    p.setBestPosition(p.getPosition().clone());
+                }
             }
+
             System.out.println("Iteration " + i + " best fitness: " + bestFitness);
+
+            // Update the previous best fitness value
+            previousBestFitness = bestFitness;
         }
     }
+
     // Retourne la meilleure fitness trouvée
     public int getBestFitness() {
         return bestFitness;
