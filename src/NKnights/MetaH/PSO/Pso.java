@@ -142,7 +142,8 @@ public class Pso {
 
             // Check if the algorithm has converged to a local optimum
             if (bestFitness == previousBestFitness) {
-                System.out.println("Converged to a local optimum.");
+                System.out.println("Solution found: " + Arrays.toString(bestPosition));
+                System.out.println("Conflicts: " + Pso.CountConflict(bestPosition));
                 return;
             }
 
